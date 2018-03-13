@@ -146,13 +146,13 @@ static unsigned char bas_instance_init(bas_instance_t **inst)
 {
     BAS_FUNC_ENTER();
     bas_inst = (bas_instance_t *)malloc(sizeof(bas_instance_t));
-    memset(bas_inst, 0, sizeof(bas_instance_t));
 
     if (NULL == bas_inst)
     {
         IFDBG(DebugOut(DEBUG_ERROR, TEXT("Malloc failed")));
         return FALSE;
     }
+    memset(bas_inst, 0, sizeof(bas_instance_t));
 
     bas_inst->a2dp_audio_started = FALSE;
     bas_inst->a2dp_play_handle   = NULL;
