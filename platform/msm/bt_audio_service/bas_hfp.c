@@ -471,8 +471,10 @@ unsigned char bas_hfp_start_audio(bas_instance_t *inst, unsigned int sample_rate
 
 unsigned char bas_hfp_stop_audio(bas_instance_t *inst)
 {
+    unsigned char result = TRUE;
     BAS_FUNC_ENTER();
     bas_hfp_close_audio_handle(inst);
     inst->hfp_audio_started = FALSE;
     BAS_FUNC_LEAVE();
+    return result;
 }
