@@ -29,6 +29,9 @@
 
 #include "bas_dbus.h"
 #include "bas_main.h"
+#include "bas_hfp.h"
+#include "bas_a2dp.h"
+#include "bas_util.h"
 
 typedef enum
 {
