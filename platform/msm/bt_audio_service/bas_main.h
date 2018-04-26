@@ -30,6 +30,7 @@
 #ifndef _BAS_MAIN_H
 #define _BAS_MAIN_H
 
+#include <pthread.h>
 #include <sys/types.h>
 #include <dbus/dbus.h>
 #include <asoundlib.h>

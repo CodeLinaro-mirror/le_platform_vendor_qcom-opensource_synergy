@@ -32,6 +32,8 @@
 #include "bas_hfp.h"
 #include "bas_a2dp.h"
 
+extern unsigned char bas_dbus_init(bas_instance_t *inst);
+
 static bas_instance_t *bas_inst;
 static void signal_handler(int signum)
 {
