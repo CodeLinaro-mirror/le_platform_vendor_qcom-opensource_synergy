@@ -32,6 +32,7 @@
 
 #include "bas_main.h"
 
+void bas_a2dp_close_audio_handle(bas_instance_t *inst);
 unsigned char bas_a2dp_start_audio(bas_instance_t *inst);
 unsigned char bas_a2dp_stop_audio(bas_instance_t *inst);
 
