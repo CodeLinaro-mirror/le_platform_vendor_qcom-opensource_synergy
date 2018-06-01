@@ -1,4 +1,4 @@
-.PHONY:all bin lib
+.PHONY:all bin lib spp_driver
 all: bt_audio_service
 # QCA, BLUECORE
 BT_CHIP_TYPE := $(CHIP_TYPE)
@@ -22,6 +22,7 @@ SYNERGY_ROOT_DIR := $(shell pwd)
 SYNERGY_OPENSOURCE_DIR := $(SYNERGY_ROOT_DIR)/synergy-opensource
 PLATFORM_DIR := $(SYNERGY_OPENSOURCE_DIR)/platform/msm
 MSM_BAS_DIR := $(PLATFORM_DIR)/bt_audio_service
+SPP_DRIVER_DIR :=$(PLATFORM_DIR)/spp
 MSM_BAS_OUTPUT_DIR:=$(MSM_BAS_DIR)/output
 COMPILER_PREFIX := arm-linux-gnueabihf-
 
@@ -34,7 +35,10 @@ CMAKE_BT_DEFINITION += -DCMAKE_VERBOSE_MAKEFILE:STRING=1 \
 
 export MSM_BAS_DIR
 bt_audio_service:
-	#make -C $(MSM_BAS_DIR) all
 	mkdir -p $(MSM_BAS_OUTPUT_DIR)
 	cd $(MSM_BAS_OUTPUT_DIR) && cmake -G 'Unix Makefiles' $(MSM_BAS_DIR) $(CMAKE_BT_DEFINITION)
 	make -C $(MSM_BAS_OUTPUT_DIR) all
+
+spp_driver:
+	@echo "build spp driver"
+	make -C $(SPP_DRIVER_DIR) all

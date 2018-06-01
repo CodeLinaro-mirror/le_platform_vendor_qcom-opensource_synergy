@@ -1,17 +1,16 @@
 #
-# Makefile for the spp driver
+# Makefile for the spp tty driver
 #
 
-#csrspp-objs	:= csrspp_tty.o
-obj-m += csrspp_tty.o
+obj-m := csrspp-tty.o
+csrspp-tty-objs := csrspp_tty.o
 
 all:
-	@echo "---------------------------"
-	@echo "CC  : $(CC)"
-	@echo "LD  : $(LD)"
 	@echo "KDIR: $(KDIR)"
-	@echo "---------------------------"
-	make CC=$(CC) LD=$(LD) -C $(KDIR) M=`pwd` modules
+	make -C $(KDIR) M=`pwd` modules
+
+modules_install:
+	make -C $(KDIR) M=`pwd` modules_install
 
 clean:
 	make -C $(KDIR) M=`pwd` clean
