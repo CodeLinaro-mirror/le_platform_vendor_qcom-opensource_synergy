@@ -27,10 +27,43 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BAS_UTIL_H
-#define __BAS_UTIL_H
+#include <stdio.h>
+#include <signal.h>
+#include <alsa/asoundlib.h>
+#include "bas_util.h"
+#include "bas_a2dp.h"
 
-#include "bas_main.h"
-int bas_set_mixer_volume(bas_instance_t *inst, int volume);
+void bas_a2dp_close_audio_handle(bas_instance_t *inst)
+{
+    BAS_FUNC_ENTER();
 
-#endif /* __BAS_UTIL_H */
+    /* Dummy function */
+
+    BAS_FUNC_LEAVE();
+}
+
+unsigned char bas_a2dp_start_audio(bas_instance_t *inst)
+{
+    unsigned char result = FALSE;
+
+    BAS_FUNC_ENTER();
+
+    /* Dummy function */
+
+    BAS_FUNC_LEAVE();
+
+    return result;
+}
+
+unsigned char bas_a2dp_stop_audio(bas_instance_t *inst)
+{
+    unsigned char result = TRUE;
+
+    BAS_FUNC_ENTER();
+
+    /* Dummy function */
+
+    BAS_FUNC_LEAVE();
+
+    return result;
+}

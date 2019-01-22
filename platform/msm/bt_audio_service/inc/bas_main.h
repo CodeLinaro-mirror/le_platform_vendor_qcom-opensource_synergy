@@ -43,8 +43,10 @@ typedef struct
     unsigned char           run;
     unsigned char           hfp_audio_started;
     unsigned char           a2dp_audio_started;
-    snd_pcm_t              *hfp_play_handle;
-    snd_pcm_t              *hfp_record_handle;  
+    snd_pcm_t              *hfp_downlink_play_handle;
+    snd_pcm_t              *hfp_downlink_record_handle;  
+    snd_pcm_t              *hfp_uplink_play_handle;
+    snd_pcm_t              *hfp_uplink_record_handle;  
     snd_pcm_t              *a2dp_play_handle;
     unsigned char           mic;
 

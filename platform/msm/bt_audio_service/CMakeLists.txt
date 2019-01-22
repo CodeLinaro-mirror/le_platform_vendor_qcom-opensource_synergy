@@ -29,19 +29,31 @@ else()
    set(CMAKE_BUILD_TYPE "None")
 endif()
 
-set(SRCS
-    bas_a2dp.c
-    bas_dbus.c
-    bas_hfp.c
-    bas_main.c
-    bas_util.c)
+include_directories(inc)
+
+if(USE_ALSA)
+    add_definitions("-DUSE_ALSA")
+    set(SRCS
+        bas_dbus.c
+        bas_main.c
+        alsa/bas_a2dp.c
+        alsa/bas_hfp.c
+        alsa/bas_util.c)
+else()
+    set(SRCS
+        bas_dbus.c
+        bas_main.c
+        pulse/bas_a2dp.c
+        pulse/bas_hfp.c
+        pulse/bas_util.c)
+endif()
 
 set(HDRS
-    bas_a2dp.h
-    bas_dbus.h
-    bas_hfp.h
-    bas_main.h
-    bas_util.h)
+    inc/bas_a2dp.h
+    inc/bas_dbus.h
+    inc/bas_hfp.h
+    inc/bas_main.h
+    inc/bas_util.h)
 
 find_package(PkgConfig)
 pkg_check_modules(DBUS dbus-1)

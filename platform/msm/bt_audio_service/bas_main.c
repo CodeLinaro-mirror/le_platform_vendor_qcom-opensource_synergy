@@ -160,8 +160,10 @@ static unsigned char bas_instance_init(bas_instance_t **inst)
     bas_inst->a2dp_play_handle   = NULL;
     bas_inst->dbus_con           = NULL;
     bas_inst->hfp_audio_started  = FALSE;
-    bas_inst->hfp_play_handle    = NULL;
-    bas_inst->hfp_record_handle  = NULL;
+    bas_inst->hfp_downlink_play_handle     = NULL;
+    bas_inst->hfp_downlink_record_handle   = NULL;
+    bas_inst->hfp_uplink_play_handle       = NULL;
+    bas_inst->hfp_uplink_record_handle     = NULL;
     bas_inst->mic                = 1;
     bas_inst->run                = FALSE;
     bas_inst->tid                = 0;
