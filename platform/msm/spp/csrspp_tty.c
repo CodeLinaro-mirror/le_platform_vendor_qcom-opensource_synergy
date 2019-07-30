@@ -115,7 +115,7 @@ static int spp_dev_activate(struct tty_port *port, struct tty_struct *tty)
     dev->tty = tty;
     dev->tty->driver_data = dev;
     spp_dlc_unlock(dev);
-    
+
     return 0;
 }
 
@@ -201,7 +201,7 @@ static int spp_release_dev(int sppInstance)
         CSRSPP_ERR("%s get dev failed", __func__);
         return -ENODEV;
     }
-    
+
     /* CSRSPP_DBG("spp_release_dev,dev->id %d flags 0x%x", dev->id, dev->flags); */
 
     if (!test_bit(SPP_RELEASE_ONHUP, &dev->flags))
@@ -210,15 +210,15 @@ static int spp_release_dev(int sppInstance)
         tty_port_put(&dev->port);
         return -ENODEV;
     }
-    
+
     port = &dev->port;
     port->itty = NULL; /* tty_port_destructor wil check last port ref was dropped before tty release */
-    
+
     tty_port_put(port);
     /* Shut down TTY synchronously before freeing spp_dev */
     tty = tty_port_tty_get(port);
     CSRSPP_DBG("tty_port_tty_get, tty %p", tty);
-    if (tty) 
+    if (tty)
     {
         CSRSPP_DBG("%s, tty->index is %d", __func__, tty->index);
         tty_vhangup(tty);
@@ -226,7 +226,7 @@ static int spp_release_dev(int sppInstance)
         tty->driver_data = NULL;
         tty->driver->ttys[tty->index] = NULL;  /* update tty state , after release do close tty_release_checks will return -1 */
     }
-    
+
     return 0;
 }
 
@@ -238,7 +238,7 @@ static struct spp_dev *__spp_dev_get(int sppInstance)
     list_for_each(p, &spp_dev_list)
     {
         dev = list_entry(p, struct spp_dev, list);
-        CSRSPP_DBG("__spp_dev_get, dev_id %d sppInstance 0x%x", dev->id, 
+        CSRSPP_DBG("__spp_dev_get, dev_id %d sppInstance 0x%x", dev->id,
                    dev->sppInstance);
 
         if (dev->sppInstance == sppInstance)
@@ -310,16 +310,16 @@ static int spp_tty_send_message(CsrInt32 sppInstance, unsigned char *buf, int co
     struct sk_buff *skb = NULL;
     int err = 0, sent = 0, size = 0;
     int mtu = 0;
-    
+
     dev = spp_dev_get(sppInstance);
     if (dev == NULL)
     {
         CSRSPP_ERR("%s get dev fail", __func__);
         return -ENODEV;
     }
-    
+
     mtu = dev->profileMaxFrameSize;
-    
+
     CSRSPP_DBG("%s: spp_tty_send_message: buf %s, count %d", __func__, buf, count);
 
     while (count)
@@ -406,10 +406,10 @@ static inline void __spp_rcv_skb(struct sk_buff *skb)
             case SPP_CTL_ON:
                 memcpy(&sppInstance, buffer + SPP_CTL_INS_POS, sizeof(CsrInt32));
                 memcpy(&profileMaxFrameSize, buffer + SPP_CTL_MTU_POS, sizeof(CsrInt32));
-                CSRSPP_DBG("SPP ctrol on socket sppInstance is (%d(b),profileMaxFrameSize is %d(m)", 
+                CSRSPP_DBG("SPP ctrol on socket sppInstance is (%ld(b),profileMaxFrameSize is %ld(m)",
                             sppInstance, profileMaxFrameSize);
                 retVal = spp_enable_dev(sppInstance, profileMaxFrameSize, pid);
-                CSRSPP_DBG("spp_create_dev ret is %d", retVal);
+                CSRSPP_DBG("spp_create_dev ret is %ld", retVal);
 
                 snprintf(dev_id, sizeof(dev_id), "ttySpp%ld", retVal);
 
@@ -422,7 +422,7 @@ static inline void __spp_rcv_skb(struct sk_buff *skb)
 
             case SPP_CTL_OFF:
                 memcpy(&sppInstance, buffer + SPP_CTL_INS_POS, sizeof(CsrInt32));
-                CSRSPP_DBG("SPP ctrol off socket sppInstance is %d!", sppInstance);
+                CSRSPP_DBG("SPP ctrol off socket sppInstance is %ld!", sppInstance);
                 mutex_lock(&spp_send_off_mutex);
                 CSRSPP_DBG("OFF, enter spp_send_off_mutex");
                 /* send exit message to spp read thread, due to netlink recv() funtion can't return*/
@@ -469,9 +469,9 @@ static int spp_create_ctl_sock(void)
 {
     struct netlink_kernel_cfg nlcfg = {  
         .input = spp_rcv_skb,  
-    };  
-    
-    control_sock = netlink_kernel_create(&init_net, NETLINK_SOCKET_SPP, &nlcfg);  
+    };
+
+    control_sock = netlink_kernel_create(&init_net, NETLINK_SOCKET_SPP, &nlcfg);
 
     CSRSPP_DBG("create control_sock netlink_kernel_create\n");
 
@@ -480,10 +480,11 @@ static int spp_create_ctl_sock(void)
         CSRSPP_ERR("create control_sock failed, netlink_kernel_create\n");
         return -1;
     }
-    
+
     return 0;
 }
 
+#if 0
 static void spp_tty_wakeup(unsigned long arg)
 {
     struct spp_dev *dev = (void *) arg;
@@ -495,6 +496,7 @@ static void spp_tty_wakeup(unsigned long arg)
     CSRSPP_DBG("dev %p tty %p", dev, tty);
     tty_wakeup(tty);
 }
+#endif
 
 static void init_spp_dev(void)
 {
@@ -525,11 +527,11 @@ static int spp_create_dev(int sppInstanceId)
     }
 
     mutex_lock(&spp_dev_mutex);
-    
+
     dev->id = sppInstanceId;
 
     snprintf(dev->name, sizeof(dev->name), "ttySpp%d", dev->id);
-    
+
     CSRSPP_DBG("dev->name: %s", dev->name);
 
     tty_port_init(&dev->port);
@@ -540,7 +542,7 @@ static int spp_create_dev(int sppInstanceId)
 
     set_bit(SPP_RELEASE_ONHUP, &dev->flags);
 
-    CSRSPP_DBG("flag has been set to %d", dev->flags);
+    CSRSPP_DBG("flag has been set to %ld", dev->flags);
 
     mDevId[sppInstanceId] = SPP_OCCUPY;
 
@@ -551,7 +553,7 @@ static int spp_create_dev(int sppInstanceId)
 
     dev->tty_dev = tty_port_register_device(&dev->port, spp_tty_driver,
                                             dev->id, NULL);
-    
+
     if (IS_ERR(dev->tty_dev))
     {
         tty_port_put(&dev->port);
@@ -579,23 +581,23 @@ static int spp_tty_open(struct tty_struct *tty, struct file *filp)
     int err = 0;
 
     CSRSPP_DBG("spp_tty_open tty %p id %d", tty, tty->index);
-    
+
     dev = (struct spp_dev *) tty->driver_data;
-    
+
     if (dev == NULL)
     {
         CSRSPP_ERR("%s (%d) dev is NULL", __func__, __LINE__);
 
         return -1;
     }
-    
-    CSRSPP_DBG("%s dev %p opened: %d dev->name: %s id: %d", __func__, 
+
+    CSRSPP_DBG("%s dev %p opened: %d dev->name: %s id: %d", __func__,
                 dev, dev->port.count, dev->name, dev->id);
 
     if (!dev->ttyReady)
     {
        CSRSPP_ERR("%s ttySPP%d not ready", __func__, dev->id);
-       return -1; 
+       return -1;
     }
 
     if (dev->openFlag == 1)
@@ -611,27 +613,27 @@ static int spp_tty_open(struct tty_struct *tty, struct file *filp)
     }
 
     dev->openFlag = 1;
-    
+
     return 0;
 }
 
 static void spp_tty_close(struct tty_struct *tty, struct file *filp)
 {
     struct spp_dev *dev = (struct spp_dev *) tty->driver_data;
-    
+
     if (dev == NULL)
     {
         CSRSPP_ERR("%s get dev fail", __func__);
         return;
     }
-   
+
     if (dev->openFlag != 1)
     {
         CSRSPP_ERR("%s, dev tty not opened, dev->openFlag: %d, dev->name %s", __func__, dev->openFlag, dev->name);
         CSRSPP_ERR("%s dev %p, id: %d, tty->driver_data: %p", __func__, dev, dev->id, tty->driver_data);
         return;
     }
-    
+
     CSRSPP_DBG("tty %p dev %p opened %d", tty, dev, dev->port.count);
     CSRSPP_DBG("%s tty %p id %d", __func__, tty, tty->index);
     CSRSPP_DBG("%s dev %p, id: %d, tty->driver_data: %p", __func__, dev, dev->id, tty->driver_data);
@@ -648,13 +650,13 @@ static int spp_tty_read(struct spp_dev *dev, unsigned int dataLen, unsigned char
 {
     int len = 0;
     struct tty_port *port = NULL;
-    
+
     len = dataLen;
     port = &dev->port;
 
     if (port == NULL)
     {
-        CSRSPP_ERR("%s, port is NULL", __func__);        
+        CSRSPP_ERR("%s, port is NULL", __func__);
         return -1;
     }
 
@@ -798,12 +800,12 @@ static void spp_tty_hangup(struct tty_struct *tty)
     tty_port_hangup(&dev->port);
 }
 
-static int spp_tty_tiocmget(struct tty_struct *tty, struct file *filp)
+static int spp_tty_tiocmget(struct tty_struct *tty)
 {
     return 0;
 }
 
-static int spp_tty_tiocmset(struct tty_struct *tty, struct file *filp, unsigned int set, unsigned int clear)
+static int spp_tty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
 {
     return 0;
 }
@@ -834,13 +836,13 @@ static int spp_tty_install(struct tty_driver *driver, struct tty_struct *tty)
         CSRSPP_ERR("%s dev is NULL", __func__);
         return -ENODEV;
     }
-    
+
     if (!dev->ttyReady)
     {
        CSRSPP_ERR("%s ttySPP%d not ready", __func__, dev->id);
-       return -ENODEV; 
+       return -ENODEV;
     }
-    
+
     /* Attach TTY */
     mutex_lock(&spp_dev_mutex);
     tty->driver_data = dev;
@@ -898,16 +900,16 @@ static int __init csrspp_init(void)
     spp_tty_driver->init_termios    = tty_std_termios;
     spp_tty_driver->init_termios.c_cflag  = B9600 | CS8 | CREAD | HUPCL | CLOCAL;
     spp_tty_driver->init_termios.c_lflag &= ~ICANON;
-    spp_tty_driver->init_termios.c_cflag &= ~CSIZE; 
+    spp_tty_driver->init_termios.c_cflag &= ~CSIZE;
     spp_tty_driver->init_termios.c_cflag &= ~CRTSCTS;
-    spp_tty_driver->init_termios.c_cflag |= CS8; 
-    spp_tty_driver->init_termios.c_cflag &= ~CSTOPB; 
-    spp_tty_driver->init_termios.c_iflag |= IGNPAR; 
-    spp_tty_driver->init_termios.c_oflag = 0;  
-    spp_tty_driver->init_termios.c_lflag = 0;  
-    
-    spp_tty_driver->init_termios.c_cc[VMIN] = 0; 
-    spp_tty_driver->init_termios.c_cc[VTIME] = 0; 
+    spp_tty_driver->init_termios.c_cflag |= CS8;
+    spp_tty_driver->init_termios.c_cflag &= ~CSTOPB;
+    spp_tty_driver->init_termios.c_iflag |= IGNPAR;
+    spp_tty_driver->init_termios.c_oflag = 0;
+    spp_tty_driver->init_termios.c_lflag = 0;
+
+    spp_tty_driver->init_termios.c_cc[VMIN] = 0;
+    spp_tty_driver->init_termios.c_cc[VTIME] = 0;
 
     memset(mDevId, 0x00, RFCOMM_MAX_DEV);
 
@@ -922,7 +924,7 @@ static int __init csrspp_init(void)
 
     spp_create_ctl_sock();
     CSRSPP_DBG("spp_create_sock");
-    
+
     init_spp_dev();
 
     printk("%s: SPP TTY layer initialized\n", __func__);
@@ -933,14 +935,14 @@ static int __init csrspp_init(void)
 static void __exit csrspp_exit(void)
 {
     int i;
-    
+
     printk("spp_tty_exit\n");
 
     for (i = 0; i < SPP_INSTANCE_SUM; i++)
     {
         spp_release_dev(i + 1);
     }
-    
+
     netlink_kernel_release(control_sock);
     control_sock = NULL;
 
