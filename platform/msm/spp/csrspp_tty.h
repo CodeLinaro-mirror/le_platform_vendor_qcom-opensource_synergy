@@ -57,7 +57,7 @@ typedef signed  char Csrint8;
 #define SPP_AVAILABLE 0
 #define SPP_OCCUPY 1
 
-#define NETLINK_SOCKET_SPP         30
+#define NETLINK_SOCKET_SPP         31
 #define SPP_INSTANCE_SUM           4
 
 #define TRUE             (1)
