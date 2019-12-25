@@ -1,6 +1,6 @@
-/* 
-  Copyright (c) 2016, The Linux Foundation. All rights reserved.
-  
+/*
+  Copyright (c) 2016, 2019 The Linux Foundation. All rights reserved.
+
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are
   met:
@@ -13,7 +13,7 @@
       * Neither the name of The Linux Foundation nor the names of its
         contributors may be used to endorse or promote products derived
         from this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
@@ -244,25 +244,24 @@ unsigned char bas_hfp_start_audio(bas_instance_t *inst, unsigned int sample_rate
         else
             printf("Unsupported sample rate: %d\r\n", sample_rate);
 
-        /* 1):  connect stream downlink playback */
-        inst->hfp_downlink_play_handle = create_stream(inst, stream_downlink, stream_playback, sco_type, 48000, 2);
-        if (inst->hfp_downlink_play_handle == NULL)
-            break;
-
-        /* 2): connect stream downlink capture */
-        /* TODO : 8K and 16K handle */
-        inst->hfp_downlink_record_handle = create_stream(inst, stream_downlink, stream_record, sco_type, sample_rate, 1);
-        if (inst->hfp_downlink_record_handle == NULL)
-            break;
-
-        /*3): connect stream uplink playback */
+        /* 1): connect stream uplink playback */
         inst->hfp_uplink_play_handle = create_stream(inst, stream_uplink, stream_playback, sco_type, sample_rate, 1);
         if (inst->hfp_uplink_play_handle == NULL)
             break;
 
-        /*4) : connect stream uplink capture */
-        inst->hfp_uplink_record_handle = create_stream(inst, stream_uplink, stream_record, sco_type, 48000, 2);
+        /* 2) : connect stream uplink capture */
+        inst->hfp_uplink_record_handle = create_stream(inst, stream_uplink, stream_record, sco_type, 48000, 1);
         if (inst->hfp_uplink_record_handle == NULL)
+            break;
+
+        /* 3):  connect stream downlink playback */
+        inst->hfp_downlink_play_handle = create_stream(inst, stream_downlink, stream_playback, sco_type, 48000, 1);
+        if (inst->hfp_downlink_play_handle == NULL)
+            break;
+
+        /* 4): connect stream downlink capture */
+        inst->hfp_downlink_record_handle = create_stream(inst, stream_downlink, stream_record, sco_type, sample_rate, 1);
+        if (inst->hfp_downlink_record_handle == NULL)
             break;
 
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("All stream create finish, BT audio Start!!")));
