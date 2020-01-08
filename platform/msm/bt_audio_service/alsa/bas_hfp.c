@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2016, 2019 The Linux Foundation. All rights reserved.
+  Copyright (c) 2016, 2019-2020 The Linux Foundation. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are
@@ -77,13 +77,13 @@ static void init_amixer(unsigned int rate)
 
     if (rate == 16000)
     {
-        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_RX SampleRate' 16000");
-        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_TX SampleRate' 16000");
+        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_RX SampleRate' KHZ_16");
+        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_TX SampleRate' KHZ_16");
     }
     else if (rate == 8000)
     {
-        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_RX SampleRate' 8000");
-        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_TX SampleRate' 8000");
+        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_RX SampleRate' KHZ_8");
+        system("amixer -c 0 cset iface=MIXER,name='PRIM_AUX_PCM_TX SampleRate' KHZ_8");
     }
     else
         printf("Unsupported rate for HF audio: %d\n", rate);
