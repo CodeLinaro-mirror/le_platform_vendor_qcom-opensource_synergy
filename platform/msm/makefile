@@ -11,7 +11,7 @@ else
 CSR_USE_H4IBS := 0
 endif
 
-USE_ALSA := 1
+USE_ALSA := 0
 
 DEBUG_ENABLE := 1
 ifeq ($(DEBUG_ENABLE), 1)
