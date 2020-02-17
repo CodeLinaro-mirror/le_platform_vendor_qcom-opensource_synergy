@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2016, The Linux Foundation. All rights reserved.
+  Copyright (c) 2016, 2019 The Linux Foundation. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are
@@ -33,31 +33,31 @@
 #include "bas_util.h"
 #include "bas_hfp.h"
 
-typedef enum 
+typedef enum
 {
     stream_downlink,
     stream_uplink,
 
-    stream_link_max  
-    
+    stream_link_max
+
 } stream_link_dir_t;
 
-typedef enum 
+typedef enum
 {
     sco_nb,     /* for narrow band : 8k */
     sco_wb,     /* for wide band : 16k */
 
-    sco_max  
-    
+    sco_max
+
 } sco_type_t;
 
-typedef enum 
+typedef enum
 {
     stream_playback,
     stream_record,
-    
-    stream_connect_max  
-    
+
+    stream_connect_max
+
 } stream_connect_t;
 
 /* Difference between 8K and 16k  ----> nb and wb */
@@ -80,13 +80,13 @@ static void sample_context_state_cb (pa_context *context, void *userdata)
 
     state = pa_context_get_state (context);
 
-	IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Got new context state %d"), state));
+    IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Got new context state %d"), state));
 
-    switch (state) 
+    switch (state)
     {
         case PA_CONTEXT_READY:
         case PA_CONTEXT_TERMINATED:
-        case PA_CONTEXT_FAILED:      
+        case PA_CONTEXT_FAILED:
             IFDBG(DebugOut(DEBUG_MESSAGE, TEXT("Signaling")));
             pa_threaded_mainloop_signal (mainloop, 0);
             break;
@@ -103,21 +103,21 @@ static void pa_wait_for_context_ready (pa_context *context, void *userdata)
 {
     pa_stream_state_t state;
     pa_threaded_mainloop *mainloop = (pa_threaded_mainloop *) userdata;
-  
-    for (;;) 
+
+    for (;;)
     {
         pa_context_state_t state;
-  
+
         state = pa_context_get_state (context);
-  
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Context state is now %d"), state));
-  
+
         if (!PA_CONTEXT_IS_GOOD (state))
             return;
-  
+
         if (state == PA_CONTEXT_READY)
             break;
-  
+
         /* Wait until the context is ready */
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Waiting...")));
         pa_threaded_mainloop_wait(mainloop);
@@ -129,14 +129,14 @@ static void sample_stream_state_cb (pa_stream *stream, void *userdata)
     pa_stream_state_t state;
     pa_threaded_mainloop *mainloop = (pa_threaded_mainloop *) userdata;
 
-    state = pa_stream_get_state (stream);  
+    state = pa_stream_get_state (stream);
     IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Got new stream state %d"), state));
 
-    switch (state) 
+    switch (state)
     {
         case PA_STREAM_READY:
         case PA_STREAM_FAILED:
-        case PA_STREAM_TERMINATED:            
+        case PA_STREAM_TERMINATED:
             IFDBG(DebugOut(DEBUG_MESSAGE, TEXT("Signaling")));
             pa_threaded_mainloop_signal (mainloop, 0);
             break;
@@ -152,10 +152,10 @@ static void pa_wait_for_stream_ready (pa_stream *stream, void *userdata)
     pa_stream_state_t state;
     pa_threaded_mainloop *mainloop = (pa_threaded_mainloop *) userdata;
 
-    for (;;) 
+    for (;;)
     {
         state = pa_stream_get_state (stream);
-        
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Stream state is now %d"), state));
 
         if (!PA_STREAM_IS_GOOD (state))
@@ -178,17 +178,17 @@ static unsigned char connect_server(bas_instance_t *inst)
         return result;
 
     IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Connecting to server ... ")));
-    
+
     pa_threaded_mainloop_lock (inst->mainloop);
 
     do
-    {   
-        if (!(inst->api = pa_threaded_mainloop_get_api (inst->mainloop)))        
+    {
+        if (!(inst->api = pa_threaded_mainloop_get_api (inst->mainloop)))
         {
             IFDBG(DebugOut(DEBUG_ERROR, TEXT("pa_threaded_mainloop_get_api failed")));
             break;
         }
-        
+
         if (!(inst->ctx = pa_context_new (inst->api , NULL)))
         {
             IFDBG(DebugOut(DEBUG_ERROR, TEXT("pa_context_new failed")));
@@ -208,32 +208,31 @@ static unsigned char connect_server(bas_instance_t *inst)
 
         result = TRUE;
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Connecting with server success")));
-        
+
     }
-    while(0);  
-    
-    pa_threaded_mainloop_unlock (inst->mainloop);   
+    while(0);
+
+    pa_threaded_mainloop_unlock (inst->mainloop);
 
     return result;
-        
+
 }
 
-
-static pa_stream* create_stream(bas_instance_t *inst, 
-                                    stream_link_dir_t dir, 
-                                    stream_connect_t ep, 
+static pa_stream* create_stream(bas_instance_t *inst,
+                                    stream_link_dir_t dir,
+                                    stream_connect_t ep,
                                     sco_type_t sco_type,
-                                    unsigned int rate, 
+                                    unsigned int rate,
                                     unsigned char channel)
 {
     pa_stream *stream = NULL;
     pa_proplist *link_proplist = NULL;
-    int latency = 20000; // start latency in micro seconds    
+    int latency = 20000; // start latency in micro seconds
     pa_sample_spec ss;
     pa_buffer_attr bufattr;
-    int ret;  
+    int ret;
 
-    if (inst == NULL || inst->mainloop == NULL 
+    if (inst == NULL || inst->mainloop == NULL
         || dir >= stream_link_max || ep >= stream_connect_max || sco_type >= sco_max )
         return NULL;
 
@@ -256,12 +255,12 @@ static pa_stream* create_stream(bas_instance_t *inst,
         if (!(link_proplist = pa_proplist_new()))
         {
             IFDBG(DebugOut(DEBUG_ERROR, TEXT("pa_proplist_new failed")));
-            break;        
+            break;
         }
         if (pa_proplist_sets(link_proplist, PA_PROP_MEDIA_ROLE, proplist_value[dir][sco_type]) < 0)
         {
             IFDBG(DebugOut(DEBUG_ERROR, TEXT("pa_proplist_sets failed")));
-            break;        
+            break;
         } 
         
         if (!(stream = pa_stream_new_with_proplist(inst->ctx, stream_name[dir][ep],&ss, NULL,link_proplist)))
@@ -285,17 +284,17 @@ static pa_stream* create_stream(bas_instance_t *inst,
             ret = pa_stream_connect_record(stream, NULL, &bufattr,
                                     PA_STREAM_INTERPOLATE_TIMING
                                     |PA_STREAM_ADJUST_LATENCY
-                                    |PA_STREAM_AUTO_TIMING_UPDATE);        
+                                    |PA_STREAM_AUTO_TIMING_UPDATE);
         }
-        
-        if (ret < 0) 
-        {            
+
+        if (ret < 0)
+        {
             IFDBG(DebugOut(DEBUG_ERROR, TEXT("pa_stream_connect failed !!!")));
             break;
         }
 
-        pa_wait_for_stream_ready(stream, inst->mainloop); 
-        
+        pa_wait_for_stream_ready(stream, inst->mainloop);
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("create stream success!!")));
     }
     while (0);
@@ -306,7 +305,7 @@ static pa_stream* create_stream(bas_instance_t *inst,
         pa_proplist_free(link_proplist);
         link_proplist = NULL;
     }
-    
+
     pa_threaded_mainloop_unlock (inst->mainloop);
 
     return stream;
@@ -317,21 +316,21 @@ static void pa_wait_for_context_disconnect (pa_context *context, void *userdata)
 {
     pa_stream_state_t state;
     pa_threaded_mainloop *mainloop = (pa_threaded_mainloop *) userdata;
-  
-    for (;;) 
+
+    for (;;)
     {
         pa_context_state_t state;
-  
+
         state = pa_context_get_state (context);
-  
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Context state is now %d"), state));
-  
+
         if (!PA_CONTEXT_IS_GOOD (state))
             return;
-  
+
         if (state == PA_CONTEXT_TERMINATED)
             break;
-  
+
         /* Wait until the context is TERMINATED */
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Waiting...")));
         pa_threaded_mainloop_wait (mainloop);
@@ -339,16 +338,15 @@ static void pa_wait_for_context_disconnect (pa_context *context, void *userdata)
 }
 
 
-
 static void pa_wait_for_stream_disconnect (pa_stream *stream, void *userdata)
 {
     pa_stream_state_t state;
     pa_threaded_mainloop *mainloop = (pa_threaded_mainloop *) userdata;
 
-    for (;;) 
+    for (;;)
     {
         state = pa_stream_get_state (stream);
-        
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Stream state is now %d"), state));
 
         if (!PA_STREAM_IS_GOOD (state))
@@ -366,19 +364,18 @@ static void pa_wait_for_stream_disconnect (pa_stream *stream, void *userdata)
 static void disconnect_stream(bas_instance_t *inst, pa_stream **stream)
 {
     if (inst == NULL || inst->mainloop == NULL || *stream == NULL)
-        return; 
+        return;
 
     IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("disconnect_stream...")));
-    
-    pa_threaded_mainloop_lock (inst->mainloop);    
-	pa_stream_disconnect(*stream);
-    pa_wait_for_stream_disconnect(*stream, inst->mainloop);		
-	pa_stream_unref(*stream);
+
+    pa_threaded_mainloop_lock (inst->mainloop);
+    pa_stream_disconnect(*stream);
+    pa_wait_for_stream_disconnect(*stream, inst->mainloop);
+    pa_stream_unref(*stream);
     pa_threaded_mainloop_unlock (inst->mainloop);
 
-    *stream == NULL;
+    *stream = NULL;
 }
-
 
 void bas_hfp_close_audio_handle(bas_instance_t *inst)
 {
@@ -391,35 +388,35 @@ void bas_hfp_close_audio_handle(bas_instance_t *inst)
     disconnect_stream(inst, &inst->downlink_p_stream);
     disconnect_stream(inst, &inst->downlink_c_stream);
     disconnect_stream(inst, &inst->uplink_p_stream);
-    disconnect_stream(inst, &inst->uplink_c_stream);  
+    disconnect_stream(inst, &inst->uplink_c_stream);
 
     /*Disconnect Server */
-	pa_threaded_mainloop_lock (inst->mainloop);
-	pa_context_disconnect(inst->ctx);
-	pa_wait_for_context_disconnect(inst->ctx, inst->mainloop);
-	pa_context_unref(inst->ctx);
-	pa_threaded_mainloop_unlock (inst->mainloop);
-    
-	pa_threaded_mainloop_stop ( inst->mainloop);
-	pa_threaded_mainloop_free ( inst->mainloop);
+    pa_threaded_mainloop_lock (inst->mainloop);
+    pa_context_disconnect(inst->ctx);
+    pa_wait_for_context_disconnect(inst->ctx, inst->mainloop);
+    pa_context_unref(inst->ctx);
+    pa_threaded_mainloop_unlock (inst->mainloop);
+
+    pa_threaded_mainloop_stop ( inst->mainloop);
+    pa_threaded_mainloop_free ( inst->mainloop);
     inst->mainloop = NULL;
-	
+
     BAS_FUNC_LEAVE();
 }
 
 unsigned char bas_hfp_start_audio(bas_instance_t *inst, unsigned int sample_rate)
 {
-    unsigned char result = FALSE; 
-    int ret = 0; 
+    unsigned char result = FALSE;
+    int ret = 0;
     sco_type_t sco_type = sco_nb;
-   
-    BAS_FUNC_ENTER();          
+
+    BAS_FUNC_ENTER();
 
     do
     {
         /* create threaded mainloop */
         inst->mainloop = pa_threaded_mainloop_new ();
-        if (pa_threaded_mainloop_start (inst->mainloop) < 0) 
+        if (pa_threaded_mainloop_start (inst->mainloop) < 0)
         {
             pa_threaded_mainloop_free (inst->mainloop);
             inst->mainloop = NULL;
@@ -432,42 +429,40 @@ unsigned char bas_hfp_start_audio(bas_instance_t *inst, unsigned int sample_rate
 
         if (sample_rate == 16000)
             sco_type = sco_wb;
-            
-        /* 1):  connect stream downlink playback */
-        inst->downlink_p_stream = create_stream(inst, stream_downlink, stream_playback, sco_type, 48000, 2);
-        if (inst->downlink_p_stream == NULL)
-            break;    
-        
-        /* 2): connect stream downlink capture */
-        /* TODO : 8K and 16K handle */
-        inst->downlink_c_stream = create_stream(inst, stream_downlink, stream_record, sco_type, sample_rate, 1);
-        if (inst->downlink_c_stream == NULL)
-            break; 
 
-        /*3): connect stream uplink playback */
+        /* 1): connect stream uplink playback */
         inst->uplink_p_stream = create_stream(inst, stream_uplink, stream_playback, sco_type, sample_rate, 1);
         if (inst->uplink_p_stream == NULL)
-            break; 
+            break;
 
-        /*4) : connect stream uplink capture */
-        inst->uplink_c_stream = create_stream(inst, stream_uplink, stream_record, sco_type, 48000, 2);
+        /* 2) : connect stream uplink capture */
+        inst->uplink_c_stream = create_stream(inst, stream_uplink, stream_record, sco_type, 48000, 1);
         if (inst->uplink_c_stream == NULL)
-            break;       
-        
+            break;
+
+        /* 3):  connect stream downlink playback */
+        inst->downlink_p_stream = create_stream(inst, stream_downlink, stream_playback, sco_type, 48000, 1);
+        if (inst->downlink_p_stream == NULL)
+            break;
+
+        /* 4): connect stream downlink capture */
+        inst->downlink_c_stream = create_stream(inst, stream_downlink, stream_record, sco_type, sample_rate, 1);
+        if (inst->downlink_c_stream == NULL)
+            break;
+
         IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("All stream create finish, BT audio Start!!")));  
-	
+
         result = TRUE;
 
     }while(0);
 
     if(!result)
-		bas_hfp_close_audio_handle(inst);
+        bas_hfp_close_audio_handle(inst);
     
     BAS_FUNC_LEAVE();  
     return result;
     
 }
-
 
 unsigned char bas_hfp_stop_audio(bas_instance_t *inst)
 {
