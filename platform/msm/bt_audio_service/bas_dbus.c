@@ -238,7 +238,15 @@ static DBusHandlerResult bas_message_handler(DBusConnection *connection,
 
     interface = dbus_message_get_interface(message);
 
-    IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Get interface: '%s' "), interface));
+    if (!interface)
+    {
+        IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Null DBUS interface!")));
+        return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+    }
+    else
+    {
+        IFDBG(DebugOut(DEBUG_OUTPUT, TEXT("Get interface: '%s' "), interface));
+    }
 
 
     for (method = &bas_methods[0]; method &&
