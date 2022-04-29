@@ -1,0 +1,47 @@
+.PHONY:all bin lib spp_driver
+all: bt_audio_service
+# QCA, BLUECORE
+BT_CHIP_TYPE := $(CHIP_TYPE)
+
+USE_MSM_PLATFORM := 1
+
+ifeq ($(BT_CHIP_TYPE), QCA)
+CSR_USE_H4IBS := 1
+else
+CSR_USE_H4IBS := 0
+endif
+
+USE_ALSA := 0
+
+DEBUG_ENABLE := 1
+ifeq ($(DEBUG_ENABLE), 1)
+CSR_BUILD_TYPE := debug
+else
+CSR_BUILD_TYPE := release
+endif
+
+SYNERGY_ROOT_DIR := $(shell pwd)
+SYNERGY_OPENSOURCE_DIR := $(SYNERGY_ROOT_DIR)/synergy-opensource
+PLATFORM_DIR := $(SYNERGY_OPENSOURCE_DIR)/platform/msm
+MSM_BAS_DIR := $(PLATFORM_DIR)/bt_audio_service
+SPP_DRIVER_DIR :=$(PLATFORM_DIR)/spp
+MSM_BAS_OUTPUT_DIR:=$(MSM_BAS_DIR)/output
+COMPILER_PREFIX := arm-linux-gnueabihf-
+
+CMAKE_BT_DEFINITION += -DCMAKE_VERBOSE_MAKEFILE:STRING=1 \
+			-DCSR_LOG_ENABLE:BOOL=$(DEBUG_ENABLE) \
+			-DBT_CHIP_TYPE:STRING=$(BT_CHIP_TYPE) \
+			-DARCH:STRING=$(ARCH) \
+			-DUSE_MSM_PLATFORM:BOOL=$(USE_MSM_PLATFORM) \
+			-DCSR_BUILD_TYPE:STRING=$(CSR_BUILD_TYPE) \
+			-DUSE_ALSA:BOOL=$(USE_ALSA)
+
+export MSM_BAS_DIR
+bt_audio_service:
+	mkdir -p $(MSM_BAS_OUTPUT_DIR)
+	cd $(MSM_BAS_OUTPUT_DIR) && cmake -G 'Unix Makefiles' $(MSM_BAS_DIR) $(CMAKE_BT_DEFINITION)
+	make -C $(MSM_BAS_OUTPUT_DIR) all
+
+spp_driver:
+	@echo "build spp driver"
+	make -C $(SPP_DRIVER_DIR) all
