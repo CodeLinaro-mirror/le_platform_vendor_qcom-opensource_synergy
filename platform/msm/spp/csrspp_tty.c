@@ -28,6 +28,7 @@
 #include <linux/netlink.h>
 #include <linux/security.h>
 #include <linux/interrupt.h>
+#include <linux/version.h>
 #include <net/net_namespace.h>
 #include <net/netns/generic.h>
 
@@ -683,7 +684,11 @@ static int spp_tty_write(struct tty_struct *tty, const unsigned char *buf, int c
 
     /* CSRSPP_DBG("%s: spp_tty_write: count %d", __func__, count); */
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+    if (tty->flow.stopped)
+#else
     if (tty->stopped)
+#endif
         return 0;
 
     if (buf == NULL)
@@ -734,12 +739,13 @@ static int spp_tty_write(struct tty_struct *tty, const unsigned char *buf, int c
     return sent ? sent : err;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+static unsigned int spp_tty_write_room(struct tty_struct *tty)
+#else
 static int spp_tty_write_room(struct tty_struct *tty)
+#endif
 {
-    /* struct spp_dev *dev = (struct spp_dev *) tty->driver_data; */
-    int room = 0;
-
-    return room;
+    return 0;
 }
 
 static void spp_tty_set_termios(struct tty_struct *tty, struct ktermios *old)
@@ -761,9 +767,12 @@ static void spp_tty_unthrottle(struct tty_struct *tty)
     return;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+static unsigned int spp_tty_chars_in_buffer(struct tty_struct *tty)
+#else
 static int spp_tty_chars_in_buffer(struct tty_struct *tty)
+#endif
 {
-
     return 0;
 }
 
@@ -883,7 +892,11 @@ static const struct tty_operations spp_ops =
 
 static int __init csrspp_init(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+    spp_tty_driver = tty_alloc_driver(SPP_TTY_PORTS, 0);
+#else
     spp_tty_driver = alloc_tty_driver(SPP_TTY_PORTS);
+#endif
 
     if (!spp_tty_driver)
         return -1;
@@ -918,7 +931,11 @@ static int __init csrspp_init(void)
     if (tty_register_driver(spp_tty_driver))
     {
         CSRSPP_ERR("%s: Can't register spp TTY driver", __func__);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+        tty_driver_kref_put(spp_tty_driver);
+#else
         put_tty_driver(spp_tty_driver);
+#endif
         return -1;
     }
 
@@ -947,7 +964,11 @@ static void __exit csrspp_exit(void)
     control_sock = NULL;
 
     tty_unregister_driver(spp_tty_driver);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+    tty_driver_kref_put(spp_tty_driver);
+#else
     put_tty_driver(spp_tty_driver);
+#endif
 }
 
 module_init(csrspp_init);
