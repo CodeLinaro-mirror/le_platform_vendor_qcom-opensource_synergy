@@ -739,60 +739,6 @@ static int spp_tty_write(struct tty_struct *tty, const unsigned char *buf, int c
     return sent ? sent : err;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-static unsigned int spp_tty_write_room(struct tty_struct *tty)
-#else
-static int spp_tty_write_room(struct tty_struct *tty)
-#endif
-{
-    return 0;
-}
-
-static void spp_tty_set_termios(struct tty_struct *tty, struct ktermios *old)
-{
-    /* struct ktermios *new = tty->termios;
-    struct spp_dev *dev = (struct spp_dev *) tty->driver_data; */
-
-    return;
-}
-
-static void spp_tty_throttle(struct tty_struct *tty)
-{
-    //struct spp_dev *dev = (struct spp_dev *) tty->driver_data;
-    return;
-}
-
-static void spp_tty_unthrottle(struct tty_struct *tty)
-{
-    return;
-}
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
-static unsigned int spp_tty_chars_in_buffer(struct tty_struct *tty)
-#else
-static int spp_tty_chars_in_buffer(struct tty_struct *tty)
-#endif
-{
-    return 0;
-}
-
-static void spp_tty_flush_buffer(struct tty_struct *tty)
-{
-    /* struct spp_dev *dev = (struct spp_dev *) tty->driver_data; */
-
-    return;
-}
-
-static void spp_tty_send_xchar(struct tty_struct *tty, char ch)
-{
-    return;
-}
-
-static void spp_tty_wait_until_sent(struct tty_struct *tty, int timeout)
-{
-    return;
-}
-
 static void spp_tty_hangup(struct tty_struct *tty)
 {
     struct spp_dev *dev = NULL;
@@ -809,17 +755,7 @@ static void spp_tty_hangup(struct tty_struct *tty)
     tty_port_hangup(&dev->port);
 }
 
-static int spp_tty_tiocmget(struct tty_struct *tty)
-{
-    return 0;
-}
-
-static int spp_tty_tiocmset(struct tty_struct *tty, unsigned int set, unsigned int clear)
-{
-    return 0;
-}
-
-/* 
+/*
  *do the reverse of install, clearing the tty fields
  */
 static void spp_tty_cleanup(struct tty_struct *tty)
@@ -876,18 +812,18 @@ static const struct tty_operations spp_ops =
     .open           = spp_tty_open,
     .close          = spp_tty_close,
     .write          = spp_tty_write,
-    .write_room     = spp_tty_write_room,
-    .chars_in_buffer    = spp_tty_chars_in_buffer,
-    .flush_buffer       = spp_tty_flush_buffer,
-    .throttle       = spp_tty_throttle,
-    .unthrottle     = spp_tty_unthrottle,
-    .set_termios    = spp_tty_set_termios,
-    .send_xchar     = spp_tty_send_xchar,
     .hangup         = spp_tty_hangup,
-    .wait_until_sent    = spp_tty_wait_until_sent,
-    .tiocmget       = spp_tty_tiocmget,
-    .tiocmset       = spp_tty_tiocmset,
     .install        = spp_tty_install,
+    .write_room     = NULL,
+    .chars_in_buffer    = NULL,
+    .flush_buffer       = NULL,
+    .throttle       = NULL,
+    .unthrottle     = NULL,
+    .set_termios    = NULL,
+    .send_xchar     = NULL,
+    .wait_until_sent    = NULL,
+    .tiocmget       = NULL,
+    .tiocmset       = NULL,
 };
 
 static int __init csrspp_init(void)
