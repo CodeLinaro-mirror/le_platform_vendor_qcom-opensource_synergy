@@ -675,7 +675,11 @@ static int spp_tty_read(struct spp_dev *dev, unsigned int dataLen, unsigned char
     return 0;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+static ssize_t spp_tty_write(struct tty_struct *tty, const unsigned char *buf, size_t count)
+#else
 static int spp_tty_write(struct tty_struct *tty, const unsigned char *buf, int count)
+#endif
 {
     struct spp_dev *dev = (struct spp_dev *) tty->driver_data;
     struct sk_buff *skb = NULL;
